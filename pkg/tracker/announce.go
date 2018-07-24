@@ -14,6 +14,9 @@ import (
 	"github.com/anacrolix/torrent/bencode"
 )
 
+// ErrBadScheme : customized error for unknown scheme
+var ErrBadScheme = errors.New("unknown scheme")
+
 // AnnounceEvent : enum for "event" in request parameters
 type AnnounceEvent int32
 
@@ -75,7 +78,7 @@ func (anc Announce) Do() (res AnnounceResponse, err error) {
 	case "udp", "udp4", "udp6":
 		return announceHTTP(anc, trackerURL)
 	default:
-		err = errors.New("unknown scheme")
+		err = ErrBadScheme
 		return
 	}
 }
