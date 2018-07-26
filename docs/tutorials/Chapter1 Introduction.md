@@ -1,0 +1,4 @@
+#   Introduction
+There are a lot of official docs [here](http://www.bittorrent.org/beps/bep_0000.html), and I strongly encourage viewing some BEPs(BitTorrent Enhancement Proposals) first so that you have a rough idea of what we're gonna build. Also, this [blog](http://www.morehawes.co.uk/the-bittorrent-protocol) is also helpful in understanding how the protocol works.
+
+The following chapters will be organized this way. We'll first examine some existing implementation of bittorrent client in Golang to see how basic library like parsing bencode, communicating with tracker, and exchanging messages between peers work. Then we'll implement a simplified version of these libraries, and upon which we'll build the first version of bittorrent client with limited functionality. Afterwards, we'll move on to some extended features.
