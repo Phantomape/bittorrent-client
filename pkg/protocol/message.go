@@ -20,6 +20,13 @@ const (
 	Request       MessageType = 6
 	Piece         MessageType = 7
 	Cancel        MessageType = 8
+
+	// BEP 0006
+	SuggestPiece  MessageType = 13
+	HaveAll       MessageType = 14
+	HaveNone      MessageType = 15
+	RejectRequest MessageType = 16
+	AllowedFast   MessageType = 17
 )
 
 // Message : represent the stream messages
