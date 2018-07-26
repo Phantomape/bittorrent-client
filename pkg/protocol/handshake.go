@@ -12,8 +12,29 @@ import (
 // Header : fixed header for the beginning of handshake message
 const Header = "\x13BitTorrent protocol"
 
+// ExtensionBitFast : enabled by setting the third least significant bit of the last reserved byte
+const ExtensionBitFast = 2 // http://www.bittorrent.org/beps/bep_0006.html
+
+// ExtensionBit : 8 bit integer
+type ExtensionBit uint
+
 // PeerExtensionBits : reserved bits after the fixed header
 type PeerExtensionBits [8]byte
+
+// SetBit : set corresponding bit in the reserved bytes
+func (peb *PeerExtensionBits) SetBit(bit ExtensionBit) {
+	peb[7-bit/8] |= 1 << (bit % 8)
+}
+
+// CheckBit : check whether corresponding has been set
+func (peb PeerExtensionBits) CheckBit(bit ExtensionBit) bool {
+	return peb[7-bit/8]&(1<<(bit%8)) != 0
+}
+
+// SupportsFast : check whether fast extension is supported
+func (peb PeerExtensionBits) SupportsFast() bool {
+	return peb.CheckBit(ExtensionBitFast)
+}
 
 // HandshakeResult : handshake result
 type HandshakeResult struct {
