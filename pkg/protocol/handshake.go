@@ -36,6 +36,18 @@ func (peb PeerExtensionBits) SupportsFast() bool {
 	return peb.CheckBit(ExtensionBitFast)
 }
 
+// NewPeerExtensionBytes : generate extension bytes
+func NewPeerExtensionBytes(bits ...ExtensionBit) (res PeerExtensionBits) {
+	for _, b := range bits {
+		res.SetBit(b)
+	}
+	return
+}
+
+func defaultPeerExtensionBytes() PeerExtensionBits {
+	return NewPeerExtensionBytes(ExtensionBitFast)
+}
+
 // HandshakeResult : handshake result
 type HandshakeResult struct {
 	PeerExtensionBits
