@@ -18,39 +18,35 @@ const ExtensionBitFast = 2 // http://www.bittorrent.org/beps/bep_0006.html
 // ExtensionBit : 8 bit integer
 type ExtensionBit uint
 
-// PeerExtensionBits : reserved bits after the fixed header
-type PeerExtensionBits [8]byte
+// PeerExtensionBytes : reserved bits after the fixed header
+type PeerExtensionBytes [8]byte
 
 // SetBit : set corresponding bit in the reserved bytes
-func (peb *PeerExtensionBits) SetBit(bit ExtensionBit) {
+func (peb *PeerExtensionBytes) SetBit(bit ExtensionBit) {
 	peb[7-bit/8] |= 1 << (bit % 8)
 }
 
 // CheckBit : check whether corresponding has been set
-func (peb PeerExtensionBits) CheckBit(bit ExtensionBit) bool {
+func (peb PeerExtensionBytes) CheckBit(bit ExtensionBit) bool {
 	return peb[7-bit/8]&(1<<(bit%8)) != 0
 }
 
 // SupportsFast : check whether fast extension is supported
-func (peb PeerExtensionBits) SupportsFast() bool {
+func (peb PeerExtensionBytes) SupportsFast() bool {
 	return peb.CheckBit(ExtensionBitFast)
 }
 
 // NewPeerExtensionBytes : generate extension bytes
-func NewPeerExtensionBytes(bits ...ExtensionBit) (res PeerExtensionBits) {
+func NewPeerExtensionBytes(bits ...ExtensionBit) (res PeerExtensionBytes) {
 	for _, b := range bits {
 		res.SetBit(b)
 	}
 	return
 }
 
-func defaultPeerExtensionBytes() PeerExtensionBits {
-	return NewPeerExtensionBytes(ExtensionBitFast)
-}
-
 // HandshakeResult : handshake result
 type HandshakeResult struct {
-	PeerExtensionBits
+	PeerExtensionBytes
 	PeerID [20]byte
 	metainfo.Hash
 }
@@ -68,7 +64,7 @@ func handshakeWriter(w io.Writer, bb <-chan []byte, done chan<- error) {
 }
 
 // Handshake : transfer handshake message
-func Handshake(sock io.ReadWriter, ih *metainfo.Hash, peerID [20]byte, extensions PeerExtensionBits) (res HandshakeResult, ok bool, err error) {
+func Handshake(sock io.ReadWriter, ih *metainfo.Hash, peerID [20]byte, extensions PeerExtensionBytes) (res HandshakeResult, ok bool, err error) {
 	writeDone := make(chan error, 1) // error value sent when the writer completes
 	postCh := make(chan []byte, 4)   // 4 means buffer capacity ???
 	go handshakeWriter(sock, postCh, writeDone)
@@ -115,7 +111,7 @@ func Handshake(sock io.ReadWriter, ih *metainfo.Hash, peerID [20]byte, extension
 	if string(b[:20]) != Header {
 		return
 	}
-	missinggo.CopyExact(&res.PeerExtensionBits, b[20:28])
+	missinggo.CopyExact(&res.PeerExtensionBytes, b[20:28])
 	missinggo.CopyExact(&res.Hash, b[28:48])
 	missinggo.CopyExact(&res.PeerID, b[48:68])
 
