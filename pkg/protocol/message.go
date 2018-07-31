@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"io"
 )
 
 // MessageType : indicate different peer message types
@@ -29,11 +30,19 @@ const (
 	AllowedFast   MessageType = 17
 )
 
+// Integer : with Read method
+type Integer uint32
+
+// Read : read an integer from reader
+func (i *Integer) Read(r io.Reader) error {
+	return binary.Read(r, binary.BigEndian, i)
+}
+
 // Message : represent the stream messages
 type Message struct {
 	Keepalive            bool
 	Type                 MessageType
-	Index, Begin, Length uint32
+	Index, Begin, Length Integer
 	Piece                []byte
 	Bitfield             []bool
 }
@@ -53,7 +62,7 @@ func (msg Message) MarshalBinary() (data []byte, err error) {
 		case Have:
 			err = binary.Write(buf, binary.BigEndian, msg.Index)
 		case Request, Cancel:
-			for _, i := range []uint32{msg.Index, msg.Begin, msg.Length} {
+			for _, i := range []Integer{msg.Index, msg.Begin, msg.Length} {
 				err = binary.Write(buf, binary.BigEndian, i)
 				if err != nil {
 					break
@@ -72,7 +81,7 @@ func (msg Message) MarshalBinary() (data []byte, err error) {
 			}
 			_, err = buf.Write(b)
 		case Piece:
-			for _, i := range []uint32{msg.Index, msg.Begin} {
+			for _, i := range []Integer{msg.Index, msg.Begin} {
 				err = binary.Write(buf, binary.BigEndian, i)
 				if err != nil {
 					return
