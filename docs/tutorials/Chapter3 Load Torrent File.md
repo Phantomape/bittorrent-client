@@ -1,0 +1,3 @@
+In this chapter, we're gonna build a library that manipulates the data inside the torrent and design a proper data structure for these information. To begin with, we would need to take a look at [BEP 003](http://www.bittorrent.org/beps/bep_0003.html) first, which is the most basic description of the metainfo. We'll take a look at the extended description like [BEP 012](http://www.bittorrent.org/beps/bep_0012.html) after we finished the most basic one.
+
+#   Metainfo

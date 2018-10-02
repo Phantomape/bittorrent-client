@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent/bencode"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnmarshalHTTPResponsePeerDicts(t *testing.T) {
@@ -51,6 +53,6 @@ var defaultClient = &http.Client{
 
 func TestUnsupportedTrackerScheme(t *testing.T) {
 	t.Parallel()
-	_, err := Announce{TrackerUrl: "lol://tracker.openbittorrent.com:80/announce"}.Do()
+	_, err := Announce{TrackerURL: "lol://tracker.openbittorrent.com:80/announce"}.Do()
 	require.Equal(t, ErrBadScheme, err)
 }
