@@ -2,7 +2,19 @@ package bencode
 
 const (
 	scanSkipSpace = iota
+	scanBeginList
+	scanBeginDict
+	scanBeginBytes
+	scanBeginNum
 	scanError
+)
+
+// parseState values
+const (
+	parseList = iota
+	parseDict
+	parseBytes
+	parseNum
 )
 
 // SyntaxError is a description of a BENCODE syntax error.
@@ -17,9 +29,10 @@ func (e *SyntaxError) Error() string {
 
 // scanner like the scanner in encoding/json
 type scanner struct {
-	step  func(*scanner, byte) int
-	err   error
-	bytes int64 // total bytes consumed
+	step       func(*scanner, byte) int
+	err        error
+	bytes      int64 // total bytes consumed
+	parseState []int
 }
 
 func (s *scanner) reset() {
