@@ -6,7 +6,9 @@ const (
 	scanBeginDict
 	scanBeginBytes
 	scanBeginNum
+	scanEndList
 	scanError
+	scanListValue
 )
 
 // parseState values

@@ -102,6 +102,7 @@ func (d *decodeState) init(data []byte) *decodeState {
 	return d
 }
 
+// unmarshal corresponds to the Decode method in encoding/json pkg
 func (d *decodeState) unmarshal(v interface{}) error {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {
@@ -178,7 +179,65 @@ func (d *decodeState) list(v reflect.Value) error {
 		break
 	}
 
-	// To be continued ...
+	i := 0
+	for {
+		d.scanWhile(scanSkipSpace)
+		if d.opcode == scanEndList {
+			break
+		}
+
+		// Wtf is here doing
+		if v.Kind() == reflect.Slice {
+			if i >= v.Cap() {
+				newCap := v.Cap() + v.Cap()/2
+				if newCap < 4 {
+					newCap = 4
+				}
+				newv := reflect.MakeSlice(v.Type(), v.Len(), newCap)
+				reflect.Copy(newv, v)
+				v.Set(newv)
+			}
+			if i >= v.Len() {
+				v.SetLen(i + 1)
+			}
+		}
+
+		if i < v.Len() {
+			if err := d.value(v.Index(i)); err != nil {
+				return err
+			}
+		} else {
+			if err := d.value(reflect.Value{}); err != nil {
+				return err
+			}
+		}
+		i++
+
+		if d.opcode == scanSkipSpace {
+			d.scanWhile(scanSkipSpace)
+		}
+		if d.opcode == scanEndList {
+			break
+		}
+		if d.opcode != scanListValue {
+			panic(phasePanicMsg)
+		}
+	}
+
+	if i < v.Len() {
+		if v.Kind() == reflect.Array {
+			// Array. Zero the rest.
+			z := reflect.Zero(v.Type().Elem())
+			for ; i < v.Len(); i++ {
+				v.Index(i).Set(z)
+			}
+		} else {
+			v.SetLen(i)
+		}
+	}
+	if i == 0 && v.Kind() == reflect.Slice {
+		v.Set(reflect.MakeSlice(v.Type(), 0, 0))
+	}
 	return nil
 }
 
